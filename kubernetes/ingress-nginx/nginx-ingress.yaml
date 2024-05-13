@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-reverse-proxy
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api  #TODO poner nombre del host de la API
+    http:
+      paths:
+      - path: /v1(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: v1  # TODO poner nombre al servicio v1
+            port:
+              number: 8080
+      - path: /v2(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: v2   #TODO poner nombre al servicio v2
+            port:
+              number: 8080
