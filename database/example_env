@@ -1,0 +1,5 @@
+# Must be created a .env file with the next variables
+
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+POSTGRES_DB=

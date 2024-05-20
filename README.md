@@ -164,7 +164,7 @@ sudo mv ./kind /usr/local/bin/kind
 Como primer paso sedeberá clonar el [repositorio](https://github.com/lukyferreiro/TPE-Redes-Kubernetes) y posicionarse en la carpeta correspondiente
 
 ```bash
-git clone https://github.com/FrBernad/TPE-redes-kubernetes.git
+git clone https://github.com/lukyferreiro/TPE-Redes-Kubernetes
 ```
 
 ```bash
@@ -174,3 +174,47 @@ cd ./TPE-Redes-Kubernetes
 A continuación, se presentaran todos los pasos para levantar un clúster de Kubernetes que cumpla con lo solicitado en la consigna. El objetivo es lograr la siguiente arquitectura:
 
 ![Arquitectura del cluster de Kubernetes](...png "Arquitectrura del cluster de Kubernetes")
+
+### Base de datos externa
+
+Primero se debe crear un archivo .env dentro de la carpeta  **database** (el que se encuentra a la misma altura que **docs** y **kubernetes**) con las siguientes variables:
+
+```bash
+POSTGRES_DB=
+POSTGRES_USER=
+POSTGRES_PASSWORD=
+```
+
+Luego se creará el container de Docker que contará con una imagen de una base de datos PostgreSQL, con un volumen persistente para almacenamiento y cargado con registros de información de ... . Cabe destacar que este container se encontrara fuera del cluster de Kubernetes (el clúster se comunicará con la BD mediante un servicio de Kubernetes encargado de exponerla, esto se explicará en secciones posteriores).
+
+```bash
+docker compose  -f ./database/docker-compose.yml up -d
+```
+
+### Levantar el cluster de Kubernetes
+
+Seguidamente, se creará el clúster de Kubernetes denominado *redes-cluster*, utilizando la configuración que se encuentra en el archivo *kubernetes/cluster-config.yaml*. Dicho cluster se configurará con un nodo master y dos slaves-
+
+```bash
+kind create cluster --config kind-config/multi-cluster-config.yaml --name redes-cluster
+```
+
+Una vez inicializado el clúster, se podrán visualizar la siguiente información:
+
+- Clústers disponibles:
+
+```bash
+kind get clusters
+```
+
+- Información específica del clúster:
+
+```bash
+kubectl cluster-info
+```
+
+- Los 3 nodos en ejecución:
+
+```bash
+kubectl get nodes
+```
