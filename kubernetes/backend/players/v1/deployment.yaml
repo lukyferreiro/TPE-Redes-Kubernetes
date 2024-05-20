@@ -1,0 +1,69 @@
+# FIXME: que agarre las
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: players-v1-deployment
+  labels:
+    app: players-v1
+  #TODO check estos annotations
+  annotations:
+    traffic.sidecar.istio.io/includeInboundPorts: ""
+    traffic.sidecar.istio.io/excludeInboundPorts: "80,443"
+    traffic.sidecar.istio.io/excludeOutboundIPRanges: ""
+    sidecar.istio.io/inject: 'true'
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: players-v1
+  template:
+    metadata:
+      labels:
+        app: players-v1
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: players-v1
+          image: players:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000  # 8000 flask 8080 fastapi
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: POSTGRES_USER
+              valueFrom:
+                  secretKeyRef:
+                    name: database-secret
+                    key: POSTGRES_USER
+            - name: POSTGRES_PASS
+              valueFrom:
+                  secretKeyRef:
+                    name: database-secret
+                    key: POSTGRES_PASS
+            - name: POSTGRES_DB
+              valueFrom:
+                  secretKeyRef:
+                    name: database-secret
+                    key: POSTGRES_DB
+            - name: POSTGRES_HOST
+              valueFrom:
+                  secretKeyRef:
+                    name: database-secret
+                    key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                  secretKeyRef:
+                    name: database-secret
+                    key: POSTGRES_PORT
