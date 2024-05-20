@@ -3,7 +3,7 @@ services:
   database:
     container_name: database
     build:
-      context: ./DB-image
+      context: ./image
     env_file:
       - ./.env
     volumes:
