@@ -1,5 +1,7 @@
 # TPE-Redes-Kubernetes
 
+Kubernetes es una plataforma de orquestación de contenedores de código abierto que automatiza la implementación, el escalado y la operación de aplicaciones en contenedores
+
 ## Autores - Grupo 13
 
 - [Tomas Alvarez Escalante](https://github.com/tomalvarezz)
@@ -18,13 +20,15 @@ un proxy reverso a la API.
 - Mostrar dos versiones de API distintas conviviendo.
 - Integrar los servicios de Istio y Kiali al cluster
 
-# Instalación
+## Entorno
 
-## Entorno utilizado
+Descripcion del entorno a usar...
 
-...
+## Instalaciones previas
 
-## Intalación de Docker
+### Docker
+
+Docker es una plataforma de software que permite crear, ejecutar y gestionar contenedores, que son entornos ligeros y portátiles para ejecutar aplicaciones. Los contenedores encapsulan todo lo necesario para que una aplicación se ejecute, incluyendo el código, las bibliotecas y las dependencias, garantizando que funcionen de manera consistente en cualquier entorno. Docker facilita el desarrollo, la implementación y la escalabilidad de aplicaciones, mejorando la eficiencia y la flexibilidad del desarrollo de software.
 
 A continuación se presentan los comandos para instalar [Docker en Ubuntu](https://docs.docker.com/engine/install/ubuntu/) (para la [instalación en otros SO's](https://docs.docker.com/engine/install/))
 
@@ -73,7 +77,7 @@ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
 sudo docker run --rm hello-world
 ```
 
-### Crear usuario y grupo de Docker
+#### Crear usuario y grupo de Docker
 
 Los comandos de esta sección tiene como objetivo evitar ejecutar los contedores como root
 
@@ -94,3 +98,79 @@ docker run --rm hello-world
 ```bash
 docker rmi hello-world
 ```
+
+### Kubectl
+
+Kubectl es una herramienta de línea de comandos utilizada para interactuar y gestionar clusters de Kubernetes. Permite a los usuarios desplegar aplicaciones, inspeccionar y administrar recursos del cluster, y realizar tareas de mantenimiento y depuración.
+
+A continuación se presentan los comandos para descargar e instalar [Kubectl en Ubuntu](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) (para la [instalación en otros SO's](https://kubernetes.io/docs/tasks/tools/#kubectl))
+
+- Para AMD64 / x86_64:
+
+```bash
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+```
+
+- Para ARM64:
+
+```bash
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl" 
+```
+
+Una vez descargado, se debe instalar:
+
+```bash
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+```
+
+Se verifica la correcta instalación:
+
+```bash
+kubectl version --client
+```
+
+### Kind (Kubernetes IN Docker)
+
+Kind es una herramienta diseñada para ejecutar clusters de Kubernetes locales utilizando contenedores Docker como nodos. Es ideal para pruebas, desarrollo y aprendizaje de Kubernetes sin necesidad de configurar una infraestructura compleja. Kind permite crear y administrar clusters de Kubernetes en cuestión de minutos, facilitando la experimentación y el desarrollo de aplicaciones en un entorno controlado y reproducible. Tambien permite especificar la cantidad de nodos worker y de nodos del control plane del clúster sin necesidad de infraestructura compleja ni recursos adicionales.
+
+AA continuación se presentan los comandos para descargar e instalar [Kind en Linux (u otros SO's)](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
+
+Primero, deberá descargarse el ejecutable compatible:
+
+- Para AMD64 / x86_64:
+
+```bash
+[ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.19.0/kind-linux-amd64
+```
+
+- Para ARM64:
+
+```bash
+[ $(uname -m) = aarch64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.19.0/kind-linux-arm64
+```
+
+Una vez descargado, se deberá ejecutar:
+
+```bash
+chmod +x ./kind
+```
+
+```bash
+sudo mv ./kind /usr/local/bin/kind
+```
+
+## Guia de Uso del TPE
+
+Como primer paso sedeberá clonar el [repositorio](https://github.com/lukyferreiro/TPE-Redes-Kubernetes) y posicionarse en la carpeta correspondiente
+
+```bash
+git clone https://github.com/FrBernad/TPE-redes-kubernetes.git
+```
+
+```bash
+cd ./TPE-Redes-Kubernetes
+```
+
+A continuación, se presentaran todos los pasos para levantar un clúster de Kubernetes que cumpla con lo solicitado en la consigna. El objetivo es lograr la siguiente arquitectura:
+
+![Arquitectura del cluster de Kubernetes](...png "Arquitectrura del cluster de Kubernetes")
