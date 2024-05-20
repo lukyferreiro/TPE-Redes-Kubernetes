@@ -38,7 +38,7 @@ Antes de instalar Docker desde 0, nos aseguraremos de que el entorno no cuente c
 sudo apt-get remove docker docker-engine docker.io containerd runc
 ```
 
-Para comenzar la instalacion primero se agrega la clave GPG oficial de Docker y se agregue el repositorio a las fuentes de Apt:
+Para comenzar la instalacion primero se agrega la clave GPG oficial de Docker y el repositorio a las fuentes de Apt:
 
 ```bash
 sudo apt-get update
@@ -79,7 +79,7 @@ sudo docker run --rm hello-world
 
 #### Crear usuario y grupo de Docker
 
-Los comandos de esta sección tiene como objetivo evitar ejecutar los contedores como root
+Los comandos de esta sección tiene como objetivo evitar ejecutar los contedores como root:
 
 ```bash
 sudo groupadd docker
@@ -89,7 +89,7 @@ sudo groupadd docker
 sudo usermod -aG docker ${USER}
 ```
 
-Para aplicar los cambios se debe reiniciar la sesión del usuario. Adicionalmente, podemos verificar nuevamente ejecutando la siguiente imagen (y luego borrarla)
+Para aplicar los cambios se debe reiniciar la sesión del usuario. Adicionalmente, podemos verificar nuevamente ejecutando la siguiente imagen (y luego borrarla):
 
 ```bash
 docker run --rm hello-world
@@ -117,13 +117,11 @@ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stabl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/arm64/kubectl" 
 ```
 
-Una vez descargado, se debe instalar:
+Una vez descargado, se debe instalar Kubectl y verificar la correcta instalación:
 
 ```bash
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 ```
-
-Se verifica la correcta instalación:
 
 ```bash
 kubectl version --client
@@ -161,7 +159,7 @@ sudo mv ./kind /usr/local/bin/kind
 
 ## Guia de Uso del TPE
 
-Como primer paso sedeberá clonar el [repositorio](https://github.com/lukyferreiro/TPE-Redes-Kubernetes) y posicionarse en la carpeta correspondiente
+Como primer paso se deberá clonar el [repositorio](https://github.com/lukyferreiro/TPE-Redes-Kubernetes) y posicionarse en la carpeta correspondiente
 
 ```bash
 git clone https://github.com/lukyferreiro/TPE-Redes-Kubernetes
@@ -175,7 +173,7 @@ A continuación, se presentaran todos los pasos para levantar un clúster de Kub
 
 ![Arquitectura del cluster de Kubernetes](...png "Arquitectrura del cluster de Kubernetes")
 
-### Base de datos externa
+### 1. Levantar base de datos externa
 
 Primero se debe crear un archivo .env dentro de la carpeta  **database** (el que se encuentra a la misma altura que **docs** y **kubernetes**) con las siguientes variables:
 
@@ -185,13 +183,13 @@ POSTGRES_USER=
 POSTGRES_PASSWORD=
 ```
 
-Luego se creará el container de Docker que contará con una imagen de una base de datos PostgreSQL, con un volumen persistente para almacenamiento y cargado con registros de información de ... . Cabe destacar que este container se encontrara fuera del cluster de Kubernetes (el clúster se comunicará con la BD mediante un servicio de Kubernetes encargado de exponerla, esto se explicará en secciones posteriores).
+Luego se creará el container de Docker que contará con una imagen de una base de datos PostgreSQL, con un volumen persistente para almacenamiento y cargado con registros de información de jugadores de la NBA. Cabe destacar que este container se encontrara fuera del cluster de Kubernetes (el clúster se comunicará con la BD mediante un servicio de Kubernetes encargado de exponerla, esto se explicará en secciones posteriores).
 
 ```bash
 docker compose  -f ./database/docker-compose.yml up -d
 ```
 
-### Levantar el cluster de Kubernetes
+### 2. Levantar el cluster de Kubernetes
 
 Seguidamente, se creará el clúster de Kubernetes denominado *redes-cluster*, utilizando la configuración que se encuentra en el archivo *kubernetes/cluster-config.yaml*. Dicho cluster se configurará con un nodo master y dos slaves-
 
@@ -207,14 +205,70 @@ Una vez inicializado el clúster, se podrán visualizar la siguiente informació
 kind get clusters
 ```
 
+```bash
+#Se deberia una salida similar a esta:
+redes-cluster
+```
+
 - Información específica del clúster:
 
 ```bash
 kubectl cluster-info
 ```
 
+```bash
+#Se deberia una salida similar a esta:
+Kubernetes control plane is running at https://127.0.0.1:45819
+CoreDNS is running at https://127.0.0.1:45819/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+```
+
 - Los 3 nodos en ejecución:
 
 ```bash
 kubectl get nodes
+```
+
+```bash
+#Se deberia una salida similar a esta:
+NAME                  STATUS   ROLES           AGE   VERSION
+redes-control-plane   Ready    control-plane   77s   v1.27.1
+redes-worker          Ready    <none>          58s   v1.27.1
+redes-worker2         Ready    <none>          58s   v1.27.1
+```
+
+### 3. Buildear API versions
+
+En esta sección se describen los pasos para se generar las imágenes de las 2 versiones de la API que consultan a la base de datos externa:
+
+```bash
+docker build -t players:v1 ./kubernetes/backend/players/v1/image
+```
+
+```bash
+docker build -t players:v2 ./kubernetes/backend/players/v2/image
+```
+
+Podemos verificar la correcta creación de las imagenes corriendo:
+
+```bash
+docker images
+```
+
+```bash
+#Se deberia una salida similar a esta:
+REPOSITORY          TAG       IMAGE ID       CREATED          SIZE
+players              v2        1e2c334729af   13 seconds ago   181MB
+players              v1        a1f94c04d9c2   24 seconds ago   181MB
+```
+
+Luego se debe cargar las imágenes dentro clúster para poder instanciarlas:
+
+```bash
+kind load docker-image players:v1 --name redes-cluster
+```
+
+```bash
+kind load docker-image players:v2 --name redes-cluster
 ```

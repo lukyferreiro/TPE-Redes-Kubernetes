@@ -1,9 +1,12 @@
-CREATE TABLE IF NOT EXISTS alumnos (
-    nombre TEXT,
-    legajo INT PRIMARY KEY NOT NULL,
+CREATE TABLE IF NOT EXISTS players (
+    id SERIAL PRIMARY KEY NOT NULL,
+    name TEXT,
+    team TEXT,
+    age INT,
+    height DECIMAL,
+    weight DECIMAL,
+    college TEXT,
+    country TEXT,
+    draft_year INT,
+    draft_round INT
 );
-
-INSERT INTO  alumnos (nombre, legajo ) VALUES ('Aleca', 60395);
-INSERT INTO  alumnos (nombre, legajo ) VALUES ('Facha', 60195);
-INSERT INTO  alumnos (nombre, legajo ) VALUES ('Tom', 60396);
-INSERT INTO  alumnos (nombre, legajo ) VALUES ('Roman', 61003);
