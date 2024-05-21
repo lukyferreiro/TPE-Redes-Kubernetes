@@ -65,6 +65,7 @@ def get_players():
 def get_api_specification():
     specs = {
         "players_url": "http://api.players.com/v1/players?name={name}{&size}",
+        "db_url": f"postgresql://{database_user}:{database_password}@{database_host}:5432/{database_db}"
     }
 
     response = make_response(specs, 200)

@@ -3,7 +3,7 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Response
 from sqlalchemy.orm import Session, sessionmaker
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, Text, Float
 from sqlalchemy.ext.declarative import declarative_base
 from .db import Base
 
@@ -20,6 +20,8 @@ SQLALCHEMY_DATABASE_URL = f"postgresql://{PG_USER}:{PG_PASSWORD}@{PG_HOST}/{PG_D
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
+
+app = FastAPI()
 
 def get_db():
     db = SessionLocal()
@@ -41,16 +43,6 @@ class Player(Base):
     def __repr__(self):
         return '<Player %r>' % self.name
 
-class PlayerSchema(Schema):
-    id = fields.Int(dump_only=True)
-    name = fields.Str(required=True)
-    age = fields.Int(required=True)
-    height_cm = fields.Float(required=True)
-    weight_kgs = fields.Float(required=True)
-
-
-app = FastAPI()
-
 def _get_response_headers():
     return {
         'X-POD-IP': getenv('POD_IP'),
@@ -62,6 +54,7 @@ def _get_response_headers():
 async def root(response: Response):
     specs = {
         "players_url": "http://api.players.com/v1/players?name={name}{&size}",
+        "db_url": f"postgresql://{PG_USER}:{PG_PASSWORD}@{PG_HOST}/{PG_DB}"
     }
     
     response.headers.update(_get_response_headers())

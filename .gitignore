@@ -425,3 +425,5 @@ dist-ssr
 *.sw?
 
 *.ini
+
+istio-1.18.0

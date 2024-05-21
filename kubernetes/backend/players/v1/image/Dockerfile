@@ -49,4 +49,4 @@ RUN poetry install --no-interaction --no-ansi
 
 COPY ./app /code/app
 
-CMD ["poetry", "run", "uvicorn", "main_fastapi:app", "--port", "8000", "--host", "0.0.0.0", "--reload"]
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--port", "8000", "--host", "0.0.0.0", "--reload"]

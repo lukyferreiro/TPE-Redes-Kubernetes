@@ -8,20 +8,20 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: api  #TODO poner nombre del host de la API
+  - host: api.players.com  
     http:
       paths:
       - path: /v1(/|$)(.*)
         pathType: Prefix
         backend:
           service:
-            name: v1  # TODO poner nombre al servicio v1
+            name: players-v1-service 
             port:
-              number: 8080
-      - path: /v2(/|$)(.*)
-        pathType: Prefix
-        backend:
-          service:
-            name: v2   #TODO poner nombre al servicio v2
-            port:
-              number: 8080
+              number: 8000   # TODO 8000 o 8080
+       #- path: /v2(/|$)(.*)
+       #  pathType: Prefix
+       #  backend:
+       #    service:
+       #      name: players-v2-service 
+        #     port:
+         #      number: 8000   # TODO 8000 o 8080
