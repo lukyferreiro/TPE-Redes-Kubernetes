@@ -5,12 +5,12 @@ metadata:
   labels:
     app: players-v1-service
 spec:
-  type: ClusterIP
+  type: ClusterIP     # Servicio unicamente accesible dentro del clúster de Kubernetes y con una dirección IP interna asignada
   selector:
     app: players-v1
   ports:
-    - port: 8080     # 8000 flask 8080 fastapi
-      targetPort: 8080     # 8000 flask 8080 fastapi
+    - port: 8080     # 8000 flask 8080 fastapi    Puerto en el que el servicio estará escuchando
+      targetPort: 8080     # 8000 flask 8080 fastapi    Puerto al que se dirigirá el tráfico una vez que llegue al servicio (es decir puerto en los Pods asociados)
       name: http
       protocol: TCP
   

@@ -7,7 +7,7 @@ import os
 
 app = Flask(__name__)
 
-CORS(app, expose_headers='*')
+CORS(app, expose_headers='*')   #Configura CORS para permitir solicitudes de origen cruzado desde cualquier dominio
 
 database_user = os.environ["POSTGRES_USER"]
 database_password = os.environ["POSTGRES_PASS"]
@@ -83,4 +83,5 @@ def _get_response_headers():
     }
 
 if __name__ == '__main__':
+    #Se inicia el servidor Flask en el puerto 8080 y escucha en todas las interfaces
     app.run(debug=True, port=8080, host='0.0.0.0')

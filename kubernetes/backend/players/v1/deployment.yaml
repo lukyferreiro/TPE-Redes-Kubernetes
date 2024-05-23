@@ -20,13 +20,13 @@ spec:
       labels:
         app: players-v1
     spec:
-      restartPolicy: Always
+      restartPolicy: Always   # Contenedores se reiniciarán automáticamente si fallan.
       containers:
         - name: players-v1
           image: players:v1
-          imagePullPolicy: Never
+          imagePullPolicy: Never   # Kubernetes no debe intentar descargar la imagen, sino que debe usar la que ya está disponible localmente
           ports:
-            - containerPort: 8080  # 8000 flask 8080 fastapi
+            - containerPort: 8080  # 8000 flask 8080 fastapi  Puerto que expone el contenedor
           env:
             - name: NODE_NAME
               valueFrom:
