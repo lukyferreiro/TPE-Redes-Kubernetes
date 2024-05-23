@@ -10,7 +10,7 @@ services:
       - type: volume
         source: database-vol
         target: /var/lib/postgresql/data 
-    network_mode: host
+    network_mode: host    # El container utiliza la red del host en lugar de tener su propia interfaz de red (teniendo acceso directo a todas las interfaces de red del host)
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 4s
