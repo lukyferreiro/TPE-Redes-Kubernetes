@@ -17,7 +17,7 @@ spec:
           service:
             name: players-v1-service 
             port:
-              number: 8080   # TODO 8000 o 8080
+              number: 8080   # TODO 8000 o 8080  Puerto del servicio al que se dirigirán las solicitudes
        #- path: /v2(/|$)(.*)
        #  pathType: Prefix
        #  backend:

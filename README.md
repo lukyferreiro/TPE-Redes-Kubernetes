@@ -404,18 +404,12 @@ En conclusión, por cada versión de la API se tendrá:
 
 ### 7. Levantar el Ingress Nginx
 
-Por último, levantaremos el Ingress, el cual actuará como punto de acceso externo al clúster de Kubernetes, permitiendo el acceso desde afuera del cluster.
+Por último, levantaremos el [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/), el cual actuará como punto de acceso externo al clúster de Kubernetes, permitiendo el acceso desde afuera del cluster.
 
-Para poder configurar un Ingress, se debe utilizar un Ingress Controller. En este caso, configuraremos el Ingress Controller de Nginx, uno de los más utilizados hoy en día debido a sus funcionalidades que incluyen enrutamiento basado en hosts y rutas, balanceo de carga, soporte para TLS/SSL, y redirecciones y reescrituras.
+Para poder configurar un Ingress, se configurará el [Ingress Controller de Nginx](https://github.com/kubernetes/ingress-nginx), uno de los más utilizados hoy en día debido a sus funcionalidades que incluyen enrutamiento basado en hosts y rutas, balanceo de carga, soporte para TLS/SSL, y redirecciones y reescrituras ([guia de instalacion](https://kubernetes.github.io/ingress-nginx/deploy/))
 
-El Ingress definirá reglas de redirección para el nombre *api.players.com*. Para poder ser accedido localmente mediante DNS, será necesario agregar la siguiente entrada en el archivo /etc/hosts.
 
-```
-127.0.0.1 api.players.com
-```
-
-Luego aplicaremos los manifiestos correspondientes con los comandos:
-
+<!-- TODO check esta version o 1.10.1 -->
 ```bash
 kubectl apply -f ./kubernetes/ingress-nginx/controller-nginx-ingress.1.5.1.yaml
 ```
@@ -424,10 +418,10 @@ kubectl apply -f ./kubernetes/ingress-nginx/controller-nginx-ingress.1.5.1.yaml
 kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s && kubectl apply -f ./kubernetes/ingress-nginx/ingress.yaml
 ```
 
-Luego, se deberá verificar que el ingress-controller esté ejecutando correctamente mediante el comando:
+Podemos verificar que el ingress-controller esté ejecutando correctamente mediante el comando:
 
 ```bash
-kubectl -n ingress-nginx get pods
+kubectl --namespace=ingress-nginx get pods
 ```
 
 ```bash
@@ -436,10 +430,35 @@ NAME                                        READY   STATUS    RESTARTS   AGE
 ingress-nginx-controller-5d5f5fd77f-abcde   1/1     Running   0          2m
 ```
 
-Una vez verificado esto, se realizará un port forwarding del servicio del ingress-controller, reenviando el puerto local 5000 al puerto 80 del servicio en el clúster. Es decir, se fowardeará el servicio para que pueda ser accedido desde fuera del clúster por la máquina host. Este port-forwarding es necesario ya que en un caso real de produccion el Ingress tendría asignada una IP pública para accederlo. En este caso, al estar trabajando en localhost, no se contará con una IP pública.:
+Tambien se puede verificar la IP o FQDN:
 
 ```bash
+kubectl --namespace=ingress-nginx get service ingress-nginx-controller
+```
+
+Para verificar qué puertos utiliza el ingress-nginx, se debe observar los puertos de salida al ejecutar el siguiente comando:
+
+```bash
+kubectl --namespace=ingress-nginx get pod -o yaml
+```
+
+En general, necesita:
+ - Puerto 8443 abierto entre todos los hosts en los que se ejecutan los nodos de Kubernetes (usado para el controlador de admisión ingress-nginx).
+ - Puerto 80 (para HTTP) y/o 443 (para HTTPS) abiertos al público en los nodos de Kubernetes a los que apunta el DNS de tus aplicaciones.
+
+Una vez verificado esto, se realizará un port forwarding del servicio del ingress-controller:
+
+TODO CHECK ACA LOS PUERTOS 5000 o 8080
+```bash
 kubectl port-forward --namespace=ingress-nginx svc/ingress-nginx-controller --address 0.0.0.0 5000:80&
+```
+
+Ahora, el tráfico enviado al puerto 8080 (o 5000) en localhost se reenvia al puerto 80 del servicio del ingress-controller en el cluster. Es decir, se fowardeará el servicio para que pueda ser accedido desde fuera del clúster por la máquina host. Este port-forwarding es necesario ya que al estar trabajando en localhost, no se contará con una IP pública (en un caso real de produccion el Ingress tendría asignada una IP pública para accederlo).
+
+El Ingress definirá reglas de redirección para el nombre *api.players.com*. Para poder ser accedido localmente mediante DNS, será necesario agregar la siguiente entrada en el archivo **/etc/hosts**.
+
+```
+127.0.0.1 api.players.com
 ```
 
 ### 8. Testeando el correcto funcionamiento
