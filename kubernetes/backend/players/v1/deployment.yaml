@@ -1,5 +1,3 @@
-# FIXME: que agarre las
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -7,11 +5,11 @@ metadata:
   labels:
     app: players-v1
   #TODO check estos annotations
-  annotations:
-    traffic.sidecar.istio.io/includeInboundPorts: ""
-    traffic.sidecar.istio.io/excludeInboundPorts: "80,443"
-    traffic.sidecar.istio.io/excludeOutboundIPRanges: ""
-    sidecar.istio.io/inject: 'true'
+  #annotations:
+    #traffic.sidecar.istio.io/includeInboundPorts: ""
+    #traffic.sidecar.istio.io/excludeInboundPorts: "80,443"
+    #traffic.sidecar.istio.io/excludeOutboundIPRanges: ""
+    #sidecar.istio.io/inject: 'true'
 spec:
   replicas: 3
   selector:
@@ -28,7 +26,7 @@ spec:
           image: players:v1
           imagePullPolicy: Never
           ports:
-            - containerPort: 8000  # 8000 flask 8080 fastapi
+            - containerPort: 8080  # 8000 flask 8080 fastapi
           env:
             - name: NODE_NAME
               valueFrom:

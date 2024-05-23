@@ -13,8 +13,9 @@ database_user = os.environ["POSTGRES_USER"]
 database_password = os.environ["POSTGRES_PASS"]
 database_db = os.environ["POSTGRES_DB"]
 database_host = os.environ["POSTGRES_HOST"]
+database_port = os.environ["POSTGRES_PORT"]
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{database_user}:{database_password}@{database_host}:5432/{database_db}"
+app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{database_user}:{database_password}@{database_host}/{database_db}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -65,7 +66,7 @@ def get_players():
 def get_api_specification():
     specs = {
         "players_url": "http://api.players.com/v1/players?name={name}{&size}",
-        "db_url": f"postgresql://{database_user}:{database_password}@{database_host}:5432/{database_db}"
+        "db_url": f"postgresql://{database_user}:{database_password}@{database_host}/{database_db}"
     }
 
     response = make_response(specs, 200)

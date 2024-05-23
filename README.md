@@ -191,7 +191,7 @@ docker compose  -f ./database/docker-compose.yml up -d
 
 ### 2. Levantar el cluster de Kubernetes
 
-Seguidamente, se creará el clúster de Kubernetes denominado *redes-cluster*, utilizando la configuración que se encuentra en el archivo *kubernetes/cluster-config.yaml*. Dicho cluster se configurará con un nodo master y dos slaves-
+Seguidamente, se creará el clúster de Kubernetes denominado *redes-cluster*, el cual se configurará con un nodo master y dos slaves:
 
 ```bash
 kind create cluster --config kubernetes/cluster-config.yaml --name redes-cluster
@@ -294,7 +294,7 @@ kubectl apply -f ./kubernetes/kiali/kiali.yaml
 kubectl apply -f ./kubernetes/prometheus/prometheus.yaml
 ```
 
-Ahora creamos los namespaces que vamos a usar y configuramos para que Istio pueda manejar las comunicaciones:
+<!-- Ahora creamos los namespaces que vamos a usar y configuramos para que Istio pueda manejar las comunicaciones:
 
 OTRO
 ```bash
@@ -303,7 +303,8 @@ kubectl apply -f namespaces/
 
 ```bash
 kubectl label namespace ingress-nginx istio-injection=enabled
-```
+``` -->
+
 ### 4. Buildear las imagenes de las versiones de la API 
 
 En esta sección se describen los pasos para se generar las imágenes de las 2 versiones de la API que consultan a la base de datos externa:
@@ -341,7 +342,7 @@ kind load docker-image players:v2 --name redes-cluster
 
 ### 5. Levantar el servicio a la BD externa
 
-OPCION 1
+<!-- OPCION 1 -->
 
 Ahora se levantará un servicio de tipo ExternalName, que permite la comunicación mediante DNS de los demás servicios y/o pods dentro del clúster con la BD externa
 
@@ -397,21 +398,21 @@ Para poder configurar un Ingress, deberá utilizarse un Ingress Controller. En e
 El Ingress definirá reglas de redirección para el nombre api.players.com. Para poder ser accedido localmente mediante DNS, será necesario agregar la siguiente entrada en el archivo /etc/hosts.
 
 ```
-127.0.0.1 api.movies.com
+127.0.0.1 api.players.com
 ```
 
 Se procederá a aplicar los manifiestos del Ingress con el siguiente comando:
 
-Opcion 1
+<!-- Opcion 1 -->
 ```bash
-kubectl apply -f ./kubernetes/nginx-ingress --recursive
+kubectl apply -f ./kubernetes/ingress --recursive
 ```
 
-Opcion 2
+<!-- Opcion 2
 ```bash
-kubectl apply -f ./kubernetes/nginx-ingress/controller-nginx-ingress.1.5.1.yaml
+kubectl apply -f ./kubernetes/ingress/controller-nginx-ingress.1.5.1.yaml
 kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s && kubectl apply -f ./kubernetes/nginx-ingress/nginx-ingress.yaml
-```
+``` -->
 
 Luego, se deberá verificar que el ingress-controller esté ejecutando correctamente mediante el comando:
 
@@ -421,15 +422,15 @@ kubectl -n ingress-nginx get pods
 
 Una vez verificado esto, se realizará un port forwarding del servicio del ingress-controller:
 
-Opcion 1
+<!-- Opcion 1 -->
 ```bash
 kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller --address 0.0.0.0 5000:80&
 ```
 
-Opcion 2
+<!-- Opcion 2
 ```shell
 kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8084:80
-```
+``` -->
 
 Esto es necesario ya que en un caso real, el Ingress tendría asignada una IP pública para accederlo. En este caso, al estar trabajando en un ambiente local, no contará con una IP pública. Debido a esto, se fowardeará el servicio para que pueda ser accedido desde fuera del clúster por la máquina host.
 

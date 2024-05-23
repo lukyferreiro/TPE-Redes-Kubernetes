@@ -9,8 +9,8 @@ spec:
   selector:
     app: players-v1
   ports:
-    - port: 8000     # 8000 flask 8080 fastapi
-      targetPort: 8000     # 8000 flask 8080 fastapi
+    - port: 8080     # 8000 flask 8080 fastapi
+      targetPort: 8080     # 8000 flask 8080 fastapi
       name: http
       protocol: TCP
   
