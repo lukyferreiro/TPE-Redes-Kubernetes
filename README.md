@@ -189,7 +189,17 @@ Luego se creará el container de Docker que contará con una imagen de una base 
 docker compose  -f ./database/docker-compose.yml up -d
 ```
 
-Con este comando el container se encontrara corriendo en 2do plano.
+Con este comando el container se encontrara corriendo en 2do plano. Se puede observar esto corriendo el comando:
+
+```bash
+docker ps
+```
+
+```bash
+#Se deberia obtener una salida similar a esta:
+CONTAINER ID   IMAGE               COMMAND                  CREATED         STATUS                            PORTS     NAMES
+413675dddc2f   database-database   "docker-entrypoint.s…"   5 seconds ago   Up 3 seconds (health: starting)             database
+```
 
 ### 2. Levantar el cluster de Kubernetes
 
@@ -402,6 +412,21 @@ En conclusión, por cada versión de la API se tendrá:
 - Un Replica Set con tres réplicas de la API ejecutándose
 - Un Servicio para exponer el acceso centralizado a los PODs.
 
+Se puede verificar la creación de los PODS ejecutando:
+
+```bash
+kubectl get pods -o wide
+```
+
+TODO completar con v2 tambien
+```bash
+#Se deberia obtener una salida similar a esta:
+NAME                                     READY   STATUS    RESTARTS   AGE     IP           NODE                    NOMINATED NODE   READINESS GATES
+players-v1-deployment-789c8bb469-7545p   2/2     Running   0          2m55s   10.244.1.9   redes-cluster-worker    <none>           <none>
+players-v1-deployment-789c8bb469-8fv46   2/2     Running   0          2m55s   10.244.2.3   redes-cluster-worker2   <none>           <none>
+players-v1-deployment-789c8bb469-stfft   2/2     Running   0          2m55s   10.244.1.8   redes-cluster-worker    <none>           <none>
+```
+
 ### 7. Levantar el Ingress Nginx
 
 Por último, levantaremos el [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/), el cual actuará como punto de acceso externo al clúster de Kubernetes, permitiendo el acceso desde afuera del cluster.
@@ -426,17 +451,25 @@ kubectl --namespace=ingress-nginx get pods
 
 ```bash
 #Se deberia obtener una salida similar a esta:
-NAME                                        READY   STATUS    RESTARTS   AGE
-ingress-nginx-controller-5d5f5fd77f-abcde   1/1     Running   0          2m
+NAME                                        READY   STATUS     RESTARTS   AGE
+ingress-nginx-admission-create-mjm7q        1/2     NotReady   2          2m34s
+ingress-nginx-admission-patch-pb65q         1/2     NotReady   3          2m33s
+ingress-nginx-controller-5b5848f778-p82s4   2/2     Running    0          2m34s
 ```
 
-Tambien se puede verificar la IP o FQDN:
+Tambien se puede informacion verificar informacion del servicio ingress-nginx-controller con:
 
 ```bash
 kubectl --namespace=ingress-nginx get service ingress-nginx-controller
 ```
 
-Para verificar qué puertos utiliza el ingress-nginx, se debe observar los puertos de salida al ejecutar el siguiente comando:
+```bash
+#Se deberia obtener una salida similar a esta:
+NAME                       TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                      AGE
+ingress-nginx-controller   LoadBalancer   10.96.151.19   <pending>     80:31129/TCP,443:32134/TCP   8m52s
+```
+
+<!-- Para verificar qué puertos utiliza el ingress-nginx, se debe observar los puertos de salida al ejecutar el siguiente comando:
 
 ```bash
 kubectl --namespace=ingress-nginx get pod -o yaml
@@ -444,16 +477,16 @@ kubectl --namespace=ingress-nginx get pod -o yaml
 
 En general, necesita:
  - Puerto 8443 abierto entre todos los hosts en los que se ejecutan los nodos de Kubernetes (usado para el controlador de admisión ingress-nginx).
- - Puerto 80 (para HTTP) y/o 443 (para HTTPS) abiertos al público en los nodos de Kubernetes a los que apunta el DNS de tus aplicaciones.
+ - Puerto 80 (para HTTP) y/o 443 (para HTTPS) abiertos al público en los nodos de Kubernetes a los que apunta el DNS de tus aplicaciones. -->
 
-Una vez verificado esto, se realizará un port forwarding del servicio del ingress-controller:
+Por ultimo se realizará un port forwarding del servicio del ingress-controller:
 
 TODO CHECK ACA LOS PUERTOS 5000 o 8080
 ```bash
 kubectl port-forward --namespace=ingress-nginx svc/ingress-nginx-controller --address 0.0.0.0 5000:80&
 ```
 
-Ahora, el tráfico enviado al puerto 8080 (o 5000) en localhost se reenvia al puerto 80 del servicio del ingress-controller en el cluster. Es decir, se fowardeará el servicio para que pueda ser accedido desde fuera del clúster por la máquina host. Este port-forwarding es necesario ya que al estar trabajando en localhost, no se contará con una IP pública (en un caso real de produccion el Ingress tendría asignada una IP pública para accederlo).
+Ahora, el tráfico enviado al puerto 5000 en localhost se reenvia al puerto 80 del servicio del ingress-controller en el cluster. Es decir, se fowardeará el servicio para que pueda ser accedido desde fuera del clúster por la máquina host. Este port-forwarding es necesario ya que al estar trabajando en localhost, no se contará con una IP pública (en un caso real de produccion el Ingress tendría asignada una IP pública para accederlo).
 
 El Ingress definirá reglas de redirección para el nombre *api.players.com*. Para poder ser accedido localmente mediante DNS, será necesario agregar la siguiente entrada en el archivo **/etc/hosts**.
 
