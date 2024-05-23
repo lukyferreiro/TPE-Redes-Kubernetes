@@ -376,13 +376,6 @@ kubectl apply -f ./kubernetes/backend/players/secret.yaml
 
 Para continuar se deberá hacer el deploy de los servicios de ambas versiones de la API, que permitirán la comunicación con los pods del mismo.
 
-- El archivo *deployment.yaml* se encargará de levantar un Deployment con un Replica Set de tres réplicas. De esta manera, se asegurará redundancia y escalabilidad en la arquitectura. En la declaración de los Pods se define el label app:players-vX (donde X será 1 o 2 según la versión que corresponda), y en el Replica Set un selector para los mismos que le permitirá monitorear el estado de los Pods. El Replica Set se utiliza para garantizar que se encuentren tres Pods ejecutándose en todo momento. En el caso de que alguno se encuentre caído, se encargará de eliminarlo y crear uno nuevo. Cada una de estas réplicas se ejecuta en un Pod distinto, otorgándoles un ID diferente. Incluso, puede haber Pods que se encuentren en distintos nodos. En la respuesta de la API, podrá observarse en qué nodo worker se encuentra el Pod que emite la respuesta, el  identificador del mismo y su IP dentro de la red del clúster de Kubernetes.
-
-- El archivo *service.yaml* se encargará de levantar un Service de tipo ClusterIP que permitirá el acceso centralizado a los Pods para las distintas componentes dentro del clúster. Dado que los Pods son efímeros, estos pueden fallar y reiniciarse en cualquier momento, provocando cambios en la IP asignada. El Service utiliza un selector que monitorea el label definido en cada una de las réplicas permitiendo acceder a los Pods de manera centralizada, sin tener que contar con conocimiento sobre la IP de los mismos. Este componente posee una IP fija, solucionando el problema del cambio constante de IPs.  Como se mencionó previamente, los servicios son utilizados para permitir la comunicación interna dentro del clúster sin tener que conocer la IP de cada pod. Estos exponen un nombre que será resuelto por el servicio DNS interno que posee Kubernetes para facilitar el acceso al mismo. Cada vez que se realice un pedido al servicio, este se encargará de delegarlo a uno de los Pods utilizando un algoritmo de balanceo round robin.
-
-En conclusión, por cada versión de la API se tendrá: un Deployment, un Replica Set con tres réplicas y un servicio para exponer el acceso centralizado a los Pods.
-
-
 ```bash
 kubectl apply -f ./kubernetes/backend/players/v1
 ```
@@ -390,6 +383,24 @@ kubectl apply -f ./kubernetes/backend/players/v1
 ```bash
 kubectl apply -f ./kubernetes/backend/players/v2
 ```
+
+Con estos comando se aplica lo siguiente:
+
+- El archivo *deployment.yaml* se encargará de levantar un Deployment con un Replica Set de tres réplicas, asegurando redundancia y escalabilidad.
+
+  - Para cada POD se define el label app:players-vX (donde X será 1 o 2 según la versión que corresponda)
+  - En el Replica Set se define un selector para monitorear el estado de los PODs. El Replica Set se utiliza para garantizar que se encuentren tres PODs ejecutándose en todo momento (si alguno se cae se elimina y se crea uno nuevo).
+  - Cada una de estas réplicas se ejecuta en un POD distinto, otorgándoles un ID diferente (incluso puede haber PODs que se encuentren en distintos nodos). 
+
+- El archivo *service.yaml* se encargará de levantar un Service de tipo ClusterIP que permitirá el acceso centralizado a los PODs para las distintas componentes dentro del clúster.
+  - El tipo ClusterIP posee una IP fija, solucionando el problema del cambio constante de IPs (pues recordemos que los PODs son efímeros, estos pueden fallar y reiniciarse en cualquier momento, provocando cambios en la IP asignada).
+  - Se utiliza un selector que monitorea el label definido en cada una de las réplicas para acceder a los PODs de manera centralizada, sin tener que contar con conocimiento sobre la IP de los mismos.
+  - Los servicios exponen un nombre que será resuelto por el servicio DNS interno que posee Kubernetes para facilitar el acceso al mismo. Cada vez que se realice un pedido al servicio, este se encargará de delegarlo a uno de los PODs utilizando un algoritmo de balanceo round robin.
+
+En conclusión, por cada versión de la API se tendrá:
+- Un Deployment que especifica la imagen del contenedor que se utilizará y la cantidad de replicas.
+- Un Replica Set con tres réplicas de la API ejecutándose
+- Un Servicio para exponer el acceso centralizado a los PODs.
 
 ### 7. Levantar el Ingress Nginx
 
@@ -444,6 +455,8 @@ curl -i "api.players.com:5000/v1/players"
 curl -i "api.players.com:5000/v2/"
 curl -i "api.players.com:5000/v2/players"
 ```
+
+En la respuesta de la API, podrá observarse en qué nodo worker se encuentra el POD que emite la respuesta, el ID del mismo y su IP dentro de la red del clúster de Kubernetes.
 
 Para poder visualizar la configuración de Istio, se realizará un port forwarding de la interfaz visual de Kiali:
 
