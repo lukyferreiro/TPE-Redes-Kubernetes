@@ -189,6 +189,8 @@ Luego se creará el container de Docker que contará con una imagen de una base 
 docker compose  -f ./database/docker-compose.yml up -d
 ```
 
+Con este comando el container se encontrara corriendo en 2do plano.
+
 ### 2. Levantar el cluster de Kubernetes
 
 Seguidamente, se creará el clúster de Kubernetes denominado *redes-cluster*, el cual se configurará con un nodo master y dos slaves:
@@ -244,9 +246,9 @@ Para el monitoreo del clúster se utilizarán las herramientas Istio y Kiali, ju
 
 - [**Istio**](https://istio.io/latest/docs/setup/getting-started/): Es un service mesh que permite gestionar el tráfico entre las componentes dentro del clúster de Kubernetes, todo sin requerir cambios en el código de los servicios.
 
-- **Kiali**: Es una herramienta de observabilidad y gestión que se utiliza junto con Istio para proporciona una interfaz gráfica que permite visualizar, monitorear y gestionar los servicios Istio.
+- [**Kiali**](https://github.com/istio/istio/tree/release-1.22/samples/addons): Es una herramienta de observabilidad y gestión que se utiliza junto con Istio para proporciona una interfaz gráfica que permite visualizar, monitorear y gestionar los servicios Istio.
 
-- **Prometheus**: Es una herramienta que recopila métricas de Istio y otros componentes de Kubernetes para monitorear el estado del clúster y de las aplicaciones.
+- [**Prometheus**](https://github.com/istio/istio/tree/release-1.22/samples/addons): Es una herramienta que recopila métricas de Istio y otros componentes de Kubernetes para monitorear el estado del clúster y de las aplicaciones.
 
 ```bash
 curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.18.0 sh -
@@ -391,28 +393,25 @@ kubectl apply -f ./kubernetes/backend/players/v2
 
 ### 7. Levantar el Ingress Nginx
 
-Por último, se levantar el Ingress, el cual actuará como punto de acceso externo al clúster de Kubernetes, permitiendo el acceso desde afuera del cluster.
+Por último, levantaremos el Ingress, el cual actuará como punto de acceso externo al clúster de Kubernetes, permitiendo el acceso desde afuera del cluster.
 
-Para poder configurar un Ingress, deberá utilizarse un Ingress Controller. En este caso se configurará el Ingress Controller de Nginx. Este es uno de los más utilizados hoy en día debido a las funcionalidades que brinda. Entre estas destacan: enrutamiento basado en hosts y rutas, balanceo de carga, soporte para TLS/SSL y redirecciones y reescrituras.
+Para poder configurar un Ingress, se debe utilizar un Ingress Controller. En este caso, configuraremos el Ingress Controller de Nginx, uno de los más utilizados hoy en día debido a sus funcionalidades que incluyen enrutamiento basado en hosts y rutas, balanceo de carga, soporte para TLS/SSL, y redirecciones y reescrituras.
 
-El Ingress definirá reglas de redirección para el nombre api.players.com. Para poder ser accedido localmente mediante DNS, será necesario agregar la siguiente entrada en el archivo /etc/hosts.
+El Ingress definirá reglas de redirección para el nombre *api.players.com*. Para poder ser accedido localmente mediante DNS, será necesario agregar la siguiente entrada en el archivo /etc/hosts.
 
 ```
 127.0.0.1 api.players.com
 ```
 
-Se procederá a aplicar los manifiestos del Ingress con el siguiente comando:
+Luego aplicaremos los manifiestos correspondientes con los comandos:
 
-<!-- Opcion 1 -->
 ```bash
-kubectl apply -f ./kubernetes/ingress --recursive
+kubectl apply -f ./kubernetes/ingress-nginx/controller-nginx-ingress.1.5.1.yaml
 ```
 
-<!-- Opcion 2
 ```bash
-kubectl apply -f ./kubernetes/ingress/controller-nginx-ingress.1.5.1.yaml
-kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s && kubectl apply -f ./kubernetes/nginx-ingress/nginx-ingress.yaml
-``` -->
+kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s && kubectl apply -f ./kubernetes/ingress-nginx/ingress.yaml
+```
 
 Luego, se deberá verificar que el ingress-controller esté ejecutando correctamente mediante el comando:
 
@@ -420,21 +419,21 @@ Luego, se deberá verificar que el ingress-controller esté ejecutando correctam
 kubectl -n ingress-nginx get pods
 ```
 
-Una vez verificado esto, se realizará un port forwarding del servicio del ingress-controller:
-
-<!-- Opcion 1 -->
 ```bash
-kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller --address 0.0.0.0 5000:80&
+#Se deberia obtener una salida similar a esta:
+NAME                                        READY   STATUS    RESTARTS   AGE
+ingress-nginx-controller-5d5f5fd77f-abcde   1/1     Running   0          2m
 ```
 
-<!-- Opcion 2
-```shell
-kubectl port-forward --namespace=ingress-nginx service/ingress-nginx-controller 8084:80
-``` -->
+Una vez verificado esto, se realizará un port forwarding del servicio del ingress-controller, reenviando el puerto local 5000 al puerto 80 del servicio en el clúster. Es decir, se fowardeará el servicio para que pueda ser accedido desde fuera del clúster por la máquina host. Este port-forwarding es necesario ya que en un caso real de produccion el Ingress tendría asignada una IP pública para accederlo. En este caso, al estar trabajando en localhost, no se contará con una IP pública.:
 
-Esto es necesario ya que en un caso real, el Ingress tendría asignada una IP pública para accederlo. En este caso, al estar trabajando en un ambiente local, no contará con una IP pública. Debido a esto, se fowardeará el servicio para que pueda ser accedido desde fuera del clúster por la máquina host.
+```bash
+kubectl port-forward --namespace=ingress-nginx svc/ingress-nginx-controller --address 0.0.0.0 5000:80&
+```
 
-Una vez configurado el Ingress, se podrán realizar llamados a la API en sus respectivos endpoints.
+### 8. Testeando el correcto funcionamiento
+
+Por finalizar y verificar el correcto funcionamiento, se podrán realizar llamados a la API en sus respectivos endpoints:
 
 ```bash
 curl -i "api.players.com:5000/v1/"
@@ -446,8 +445,7 @@ curl -i "api.players.com:5000/v2/"
 curl -i "api.players.com:5000/v2/players"
 ```
 
-
-Para poder visualizar la configuración de Istio, se realizará un port forwarding de la interfaz visual de Kiali.
+Para poder visualizar la configuración de Istio, se realizará un port forwarding de la interfaz visual de Kiali:
 
 
 ```bash
@@ -457,5 +455,5 @@ istioctl dashboard kiali --address 0.0.0.0 &
 Para generar tráfico en el clúster y observar a Istio en acción, se ejecutará el siguiente comando:
 
 ```bash
-while sleep 1; do curl "api.players.com:5000/v1/players" && curl  "api.players.com:5000/v2/players"; done
+while sleep 1; do curl "api.players.com:5000/v1/players" && curl "api.players.com:5000/v2/players"; done
 ```
