@@ -197,9 +197,9 @@ A continuación, se presentaran todos los pasos para levantar un clúster de Kub
 Primero se debe crear un archivo .env dentro de la carpeta  **database** (el que se encuentra a la misma altura que **docs** y **kubernetes**) con las siguientes variables:
 
 ```bash
-POSTGRES_DB=
-POSTGRES_USER=
-POSTGRES_PASSWORD=
+POSTGRES_DB=players
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
 ```
 
 Luego se creará el container de Docker que contará con una imagen de una base de datos PostgreSQL, con un volumen persistente para almacenamiento y cargado con registros de [información de jugadores de la FIFA](https://www.kaggle.com/datasets/maso0dahmed/football-players-data). Cabe destacar que este container se encontrara fuera del cluster de Kubernetes (el clúster se comunicará con la BD mediante un servicio de Kubernetes encargado de exponerla, esto se explicará en secciones posteriores).
