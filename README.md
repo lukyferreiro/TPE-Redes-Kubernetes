@@ -496,12 +496,14 @@ Para finalizar y verificar el correcto funcionamiento, se podrán realizar llama
 
 ```bash
 curl -i "api.players.com:5000/v1/"
-curl -i "api.players.com:5000/v1/players"
+curl -i "api.players.com:5000/v1/players?name=a"
+curl -i "api.players.com:5000/v2/players/1"
 ```
 
 ```bash
 curl -i "api.players.com:5000/v2/"
-curl -i "api.players.com:5000/v2/players"
+curl -i "api.players.com:5000/v2/players?name=a"
+curl -i "api.players.com:5000/v2/players/1"
 ```
 
 En la respuesta de la API, podrá observarse en qué nodo worker se encuentra el POD que emite la respuesta, el ID del mismo y su IP dentro de la red del clúster de Kubernetes.
