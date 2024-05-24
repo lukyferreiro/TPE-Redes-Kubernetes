@@ -1,13 +1,31 @@
 # TPE-Redes-Kubernetes
 
-Kubernetes es una plataforma de orquestación de contenedores de código abierto que automatiza la implementación, el escalado y la operación de aplicaciones en contenedores
-
 ## Autores - Grupo 13
-
 - [Tomas Alvarez Escalante](https://github.com/tomalvarezz)
 - [Alejo Caeiro](https://github.com/AleCaeiro)
 - [Lucas Agustin Ferreiro](https://github.com/lukyferreiro)
 - [Roman Gomez Kiss](https://github.com/rgomezkiss)
+
+## Índice
+1. [Introducción](#introducción)
+2. [Consigna](#consigna)
+3. [Entorno](#entorno)
+4. [Instalaciones previas](#instalaciones-previas)
+    - [Docker](#docker)
+    - [Kubectl](#kubectl)
+    - [Kind (Kubernetes IN Docker)](#kind-kubernetes-in-docker)
+5. [Guía de Uso del TPE](#guía-de-uso-del-tpe)
+    - [1. Levantar base de datos externa](#1-levantar-base-de-datos-externa)
+    - [2. Levantar el cluster de Kubernetes](#2-levantar-el-cluster-de-kubernetes)
+    - [3. Configuración de monitoreo (Istio, Kiali y Prometheus)](#3-configuración-de-monitoreo-istio-kiali-y-prometheus)
+    - [4. Buildear las imágenes de las versiones de la API](#4-buildear-las-imágenes-de-las-versiones-de-la-api)
+    - [5. Levantar el servicio a la BD externa](#5-levantar-el-servicio-a-la-bd-externa)
+    - [6. Levantar los servicios de la API](#6-levantar-los-servicios-de-la-api)
+    - [7. Levantar el Ingress Nginx](#7-levantar-el-ingress-nginx)
+    - [8. Testeando el correcto funcionamiento](#8-testeando-el-correcto-funcionamiento)
+
+## Introducción
+Kubernetes es una plataforma de orquestación de contenedores de código abierto que automatiza la implementación, el escalado y la operación de aplicaciones en contenedores.
 
 ## Consigna
 
