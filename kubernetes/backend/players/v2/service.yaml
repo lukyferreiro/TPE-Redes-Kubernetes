@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: players-v2-service
+  labels:
+    app: players-v2-service
+spec:
+  type: ClusterIP     # Servicio unicamente accesible dentro del clúster de Kubernetes y con una dirección IP interna asignada
+  selector:
+    app: players-v2
+  ports:
+    - port: 8080     # Puerto en el que el servicio estará escuchando
+      targetPort: 8080     # Puerto al que se dirigirá el tráfico una vez que llegue al servicio (es decir puerto en los PODs asociados)
+      name: http
+      protocol: TCP
+  

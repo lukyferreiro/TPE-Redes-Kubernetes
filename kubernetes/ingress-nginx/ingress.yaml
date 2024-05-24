@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: nginx-reverse-proxy
   annotations:
-    #nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   ingressClassName: nginx
@@ -17,11 +17,11 @@ spec:
           service:
             name: players-v1-service 
             port:
-              number: 8080   # TODO 8000 o 8080  Puerto del servicio al que se dirigirán las solicitudes
-       #- path: /v2(/|$)(.*)
-       #  pathType: Prefix
-       #  backend:
-       #    service:
-       #      name: players-v2-service 
-        #     port:
-         #      number: 8000   # TODO 8000 o 8080
+              number: 8080   # Puerto del servicio al que se dirigirán las solicitudes
+      - path: /v2(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: players-v2-service 
+            port:
+              number: 8080   

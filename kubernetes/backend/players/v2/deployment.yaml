@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: players-v1-deployment
+  name: players-v2-deployment
   labels:
-    app: players-v1
+    app: players-v2
   annotations:
     traffic.sidecar.istio.io/includeInboundPorts: ""
     traffic.sidecar.istio.io/excludeInboundPorts: "80,443"
@@ -13,16 +13,16 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: players-v1
+      app: players-v2
   template:
     metadata:
       labels:
-        app: players-v1
+        app: players-v2
     spec:
       restartPolicy: Always   # Contenedores se reiniciarán automáticamente si fallan.
       containers:
-        - name: players-v1
-          image: players:v1
+        - name: players-v2
+          image: players:v2
           imagePullPolicy: Never   # Kubernetes no debe intentar descargar la imagen, sino que debe usar la que ya está disponible localmente
           ports:
             - containerPort: 8080  # Puerto que expone el contenedor

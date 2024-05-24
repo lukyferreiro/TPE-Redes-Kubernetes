@@ -209,45 +209,18 @@ Seguidamente, se creará el clúster de Kubernetes denominado *redes-cluster*, e
 kind create cluster --config kubernetes/cluster-config.yaml --name redes-cluster
 ```
 
-Una vez inicializado el clúster, se podrán visualizar la siguiente información:
-
-- Clústers disponibles:
+Una vez inicializado el clúster, se podrán visualizar los tres nodos en ejecución:
 
 ```bash
-kind get clusters
-```
-
-```bash
-#Se deberia obtener esta salida:
-redes-cluster
-```
-
-- Información específica del clúster:
-
-```bash
-kubectl cluster-info
+kubectl get nodes -o wide
 ```
 
 ```bash
 #Se deberia obtener una salida similar a esta:
-Kubernetes control plane is running at https://127.0.0.1:45819
-CoreDNS is running at https://127.0.0.1:45819/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
-
-To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
-```
-
-- Los 3 nodos en ejecución:
-
-```bash
-kubectl get nodes
-```
-
-```bash
-#Se deberia obtener una salida similar a esta:
-NAME                  STATUS   ROLES           AGE   VERSION
-redes-control-plane   Ready    control-plane   77s   v1.27.1
-redes-worker          Ready    <none>          58s   v1.27.1
-redes-worker2         Ready    <none>          58s   v1.27.1
+NAME                          STATUS   ROLES           AGE     VERSION   INTERNAL-IP 
+redes-cluster-control-plane   Ready    control-plane   2m59s   v1.27.1   172.18.0.4 
+redes-cluster-worker          Ready    <none>          2m39s   v1.27.1   172.18.0.3
+redes-cluster-worker2         Ready    <none>          2m38s   v1.27.1   172.18.0.2 
 ```
 
 ### 3. Configuración de monitorio (Istio, Kiali y Prometheus)
@@ -260,12 +233,15 @@ Para el monitoreo del clúster se utilizarán las herramientas Istio y Kiali, ju
 
 - [**Prometheus**](https://github.com/istio/istio/tree/release-1.22/samples/addons): Es una herramienta que recopila métricas de Istio y otros componentes de Kubernetes para monitorear el estado del clúster y de las aplicaciones.
 
+En primer lugar instalaremos la ultima versión de Istio:
+
 ```bash
-curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.18.0 sh -
+curl -L https://istio.io/downloadIstio | sh -
 ```
 
 ```bash
-cd istio-1.18.0
+# XX representa el valor de la versión (ej. istio-1.22.0)
+cd istio-XX
 ```
 
 ```bash
@@ -329,7 +305,7 @@ docker build -t players:v1 ./kubernetes/backend/players/v1/image
 docker build -t players:v2 ./kubernetes/backend/players/v2/image
 ```
 
-Podemos verificar la correcta creación de las imagenes corriendo:
+Podemos verificar que las imagenes se crearon correctamente corriendo:
 
 ```bash
 docker images
@@ -354,27 +330,28 @@ kind load docker-image players:v2 --name redes-cluster
 
 ### 5. Levantar el servicio a la BD externa
 
-<!-- OPCION 1 -->
+Ahora se levantará un recurso de Endpoints y un recurso de Service:
+- **Endpoints**: define la dirección IP 172.0.0.1 para el servicio database-service; esta IP debe ser accesible desde el clúster de Kubernetes y apunta a la BD externa.
+- **Service**: al definirse con clusterIP: None es un "Headless Service", lo cual implica que no se asignará una IP de clúster para el servicio y en su lugar, Kubernetes utilizará los Endpoints directamente para la resolución DNS.
 
-Ahora se levantará un servicio de tipo ExternalName, que permite la comunicación mediante DNS de los demás servicios y/o pods dentro del clúster con la BD externa
-
-```bash
-kubectl apply -f ./kubernetes/database/database-service.yaml
-```
-
-Para poder resolver consultas DNS hacia la base de datos, se deberá configurar una entrada de manera local en la máquina del host.
+Es decir, de esta forma, Kubernetes resuelva el nombre database-service directamente a las direcciones IP especificadas en los Endpoints sin asignar una IP de clúster. Al especificar la IP 172.0.0.1 manualmente, se le dice explícitamente a Kubernetes que cuando el servicio database-service sea solicitado, debe redirigir el tráfico a esta IP.
 
 ```bash
-ip a
+kubectl apply -f ./kubernetes/database/
+```
+
+Se puede verificar la creación del servicio ejecutando:
+
+
+```bash
+kubectl get services -o wide
 ```
 
 ```bash
-hostname -I
+#Se deberia obtener una salida similar a esta:
+NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE     SELECTOR
+database-service     ClusterIP   None            <none>        <none>     2m25s   <none>
 ```
-
-Deberá seleccionarse una IP asignada a cualquier interfaz (que no sea loopback) y agregarla en nuestro archivo /etc/hosts de la siguiente forma:
-
-> [IP base de datos] database
 
 ### 6. Levantar los servicios de la API
 
@@ -412,19 +389,32 @@ En conclusión, por cada versión de la API se tendrá:
 - Un Replica Set con tres réplicas de la API ejecutándose
 - Un Servicio para exponer el acceso centralizado a los PODs.
 
-Se puede verificar la creación de los PODS ejecutando:
+Se puede verificar la creación de los PODS y de los servicios ejecutando:
 
 ```bash
 kubectl get pods -o wide
 ```
 
-TODO completar con v2 tambien
 ```bash
 #Se deberia obtener una salida similar a esta:
-NAME                                     READY   STATUS    RESTARTS   AGE     IP           NODE                    NOMINATED NODE   READINESS GATES
-players-v1-deployment-789c8bb469-7545p   2/2     Running   0          2m55s   10.244.1.9   redes-cluster-worker    <none>           <none>
-players-v1-deployment-789c8bb469-8fv46   2/2     Running   0          2m55s   10.244.2.3   redes-cluster-worker2   <none>           <none>
-players-v1-deployment-789c8bb469-stfft   2/2     Running   0          2m55s   10.244.1.8   redes-cluster-worker    <none>           <none>
+NAME                                     READY   STATUS    RESTARTS   AGE   IP           NODE
+players-v1-deployment-789c8bb469-4kmdr   2/2     Running   0          19s   10.244.1.6   redes-cluster-worker
+players-v1-deployment-789c8bb469-dljcc   2/2     Running   0          19s   10.244.1.5   redes-cluster-worker 
+players-v1-deployment-789c8bb469-vwz4c   2/2     Running   0          19s   10.244.2.3   redes-cluster-worker2
+players-v2-deployment-698888c5d6-8nftd   2/2     Running   0          14s   10.244.1.8   redes-cluster-worker
+players-v2-deployment-698888c5d6-ftvwk   2/2     Running   0          15s   10.244.1.7   redes-cluster-worker 
+players-v2-deployment-698888c5d6-p557p   2/2     Running   0          14s   10.244.2.4   redes-cluster-worker2 
+```
+
+```bash
+kubectl get services -o wide
+```
+
+```bash
+#Se deberia obtener una salida similar a esta:
+NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE     SELECTOR
+players-v1-service   ClusterIP   10.96.187.152   <none>        8080/TCP   92s     app=players-v1
+players-v2-service   ClusterIP   10.96.47.1      <none>        8080/TCP   88s     app=players-v2
 ```
 
 ### 7. Levantar el Ingress Nginx
@@ -434,9 +424,8 @@ Por último, levantaremos el [Ingress](https://kubernetes.io/docs/concepts/servi
 Para poder configurar un Ingress, se configurará el [Ingress Controller de Nginx](https://github.com/kubernetes/ingress-nginx), uno de los más utilizados hoy en día debido a sus funcionalidades que incluyen enrutamiento basado en hosts y rutas, balanceo de carga, soporte para TLS/SSL, y redirecciones y reescrituras ([guia de instalacion](https://kubernetes.github.io/ingress-nginx/deploy/))
 
 
-<!-- TODO check esta version o 1.10.1 -->
 ```bash
-kubectl apply -f ./kubernetes/ingress-nginx/controller-nginx-ingress.1.5.1.yaml
+kubectl apply -f ./kubernetes/ingress-nginx/controller-nginx-ingress.1.10.1.yaml
 ```
 
 ```bash
@@ -446,21 +435,17 @@ kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.
 Podemos verificar que el ingress-controller esté ejecutando correctamente mediante el comando:
 
 ```bash
-kubectl --namespace=ingress-nginx get pods
-```
-
-```bash
 #Se deberia obtener una salida similar a esta:
-NAME                                        READY   STATUS     RESTARTS   AGE
-ingress-nginx-admission-create-mjm7q        1/2     NotReady   2          2m34s
-ingress-nginx-admission-patch-pb65q         1/2     NotReady   3          2m33s
-ingress-nginx-controller-5b5848f778-p82s4   2/2     Running    0          2m34s
+NAME                                        READY   STATUS      RESTARTS   AGE
+ingress-nginx-admission-create-gqswf        0/1     Completed   0          64s
+ingress-nginx-admission-patch-fd88s         0/1     Completed   1          64s
+ingress-nginx-controller-6948cd7b94-9kxhc   1/1     Running     0          64s
 ```
 
-Tambien se puede informacion verificar informacion del servicio ingress-nginx-controller con:
+Tambien podemos obtener información del servicio:
 
 ```bash
-kubectl --namespace=ingress-nginx get service ingress-nginx-controller
+kubectl get service ingress-nginx-controller --namespace=ingress-nginx
 ```
 
 ```bash
@@ -469,19 +454,12 @@ NAME                       TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)  
 ingress-nginx-controller   LoadBalancer   10.96.151.19   <pending>     80:31129/TCP,443:32134/TCP   8m52s
 ```
 
-<!-- Para verificar qué puertos utiliza el ingress-nginx, se debe observar los puertos de salida al ejecutar el siguiente comando:
-
-```bash
-kubectl --namespace=ingress-nginx get pod -o yaml
-```
-
-En general, necesita:
+<!-- En general, el ingress-nginx necesita:
  - Puerto 8443 abierto entre todos los hosts en los que se ejecutan los nodos de Kubernetes (usado para el controlador de admisión ingress-nginx).
  - Puerto 80 (para HTTP) y/o 443 (para HTTPS) abiertos al público en los nodos de Kubernetes a los que apunta el DNS de tus aplicaciones. -->
 
 Por ultimo se realizará un port forwarding del servicio del ingress-controller:
 
-TODO CHECK ACA LOS PUERTOS 5000 o 8080
 ```bash
 kubectl port-forward --namespace=ingress-nginx svc/ingress-nginx-controller --address 0.0.0.0 5000:80&
 ```
@@ -496,7 +474,7 @@ El Ingress definirá reglas de redirección para el nombre *api.players.com*. Pa
 
 ### 8. Testeando el correcto funcionamiento
 
-Por finalizar y verificar el correcto funcionamiento, se podrán realizar llamados a la API en sus respectivos endpoints:
+Para finalizar y verificar el correcto funcionamiento, se podrán realizar llamados a la API en sus respectivos endpoints:
 
 ```bash
 curl -i "api.players.com:5000/v1/"

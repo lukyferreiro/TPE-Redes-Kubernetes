@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "tpe-redes"
+version = "0.1.0"
+description = ""
+authors = ["Lucas Ferreiro <lferreiro@itba.edu.ar>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.95.2"
+uvicorn = "^0.22.0"
+python-dotenv = "^1.0.0"
+sqlalchemy = "^2.0.15"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

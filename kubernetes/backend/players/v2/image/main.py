@@ -22,14 +22,20 @@ db = SQLAlchemy(app)
 #----------------------------------------------
 #---------------Model and Schema---------------
 #----------------------------------------------
+
 class Player(db.Model):
     __tablename__ = 'players'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text, nullable=False)
+    full_name = db.Column(db.Text, nullable=False)
     age = db.Column(db.Integer, nullable=False)
     height_cm = db.Column(db.Float, nullable=False)
     weight_kgs = db.Column(db.Float, nullable=False)
+    positions = db.Column(db.Text, nullable=False)
+    nationality = db.Column(db.Text, nullable=False)
+    overall_rating = db.Column(db.Integer, nullable=False)
+    potential = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
         return '<Player %r>' % self.name
@@ -37,9 +43,14 @@ class Player(db.Model):
 class PlayerSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
+    full_name = fields.Str(required=True)
     age = fields.Int(required=True)
     height_cm = fields.Float(required=True)
     weight_kgs = fields.Float(required=True)
+    positions = fields.Str(required=True)
+    nationality = fields.Str(required=True)
+    overall_rating = fields.Int(required=True)
+    potential = fields.Int(required=True)
 
 
 #----------------------------------------------
@@ -56,7 +67,7 @@ def _get_response_headers():
 @app.route('/', methods=['GET'])
 def get_api_specification():
     specs = {
-        "players_url": "http://api.players.com/v1/players?name={name}{&size}",
+        "players_url": "http://api.players.com/v2/players?name={name}{&size}",
         "player_url": "http://api.players.com/v2/players/{id}",
         "db_url": f"postgresql://{database_user}:{database_password}@{database_host}/{database_db}"
     }
@@ -107,7 +118,6 @@ def get_player(player_id):
     response.headers.extend(_get_response_headers())
     
     return response
-
 
 if __name__ == '__main__':
     #Se inicia el servidor Flask en el puerto 8080 y escucha en todas las interfaces
