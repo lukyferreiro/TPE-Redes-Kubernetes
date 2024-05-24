@@ -12,16 +12,16 @@ spec:
     http:
       paths:
       - path: /v1(/|$)(.*)
-        pathType: Prefix
+        pathType: Prefix   # TODO check si ImplementationSpecific  
         backend:
           service:
             name: players-v1-service 
             port:
               number: 8080   # Puerto del servicio al que se dirigirán las solicitudes
       - path: /v2(/|$)(.*)
-        pathType: Prefix
+        pathType: Prefix   # TODO check si ImplementationSpecific 
         backend:
           service:
             name: players-v2-service 
             port:
-              number: 8080   
+              number: 8080   # Puerto del servicio al que se dirigirán las solicitudes

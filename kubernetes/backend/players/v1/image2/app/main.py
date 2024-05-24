@@ -45,9 +45,13 @@ class Player(Base):
 
 def _get_response_headers():
     return {
+        'X-NODE-NAME': getenv('NODE_NAME'),
+        'X-NODE-IP': getenv('NODE_IP'),
         'X-POD-IP': getenv('POD_IP'),
         'X-POD-NAME': getenv('POD_NAME'),
-        'X-NODE-NAME': getenv('NODE_NAME'),
+        'X-POD-NAMESPACE': getenv('POD_NAMESPACE'),
+        'X-POD-UID': getenv('POD_UID'),
+        'X-POD-SERVICE-ACCOUNT': getenv('POD_SERVICE_ACCOUNT'),
     }
 
 @app.get("/")

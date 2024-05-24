@@ -59,9 +59,13 @@ class PlayerSchema(Schema):
 
 def _get_response_headers():
     return {
+        'X-NODE-NAME': os.environ.get('NODE_NAME'),
+        'X-NODE-IP': os.environ.get('NODE_IP'),
         'X-POD-IP': os.environ.get('POD_IP'),
         'X-POD-NAME': os.environ.get('POD_NAME'),
-        'X-NODE-NAME': os.environ.get('NODE_NAME'),
+        'X-POD-NAMESPACE': os.environ.get('POD_NAMESPACE'),
+        'X-POD-UID': os.environ.get('POD_UID'),
+        'X-POD-SERVICE-ACCOUNT': os.environ.get('POD_SERVICE_ACCOUNT'),
     }
 
 @app.route('/', methods=['GET'])
