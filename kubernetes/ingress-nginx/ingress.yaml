@@ -1,13 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: nginx-reverse-proxy
+  name: nginx-reverse-proxy-1
   annotations:
-    #nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
-    #nginx.ingress.kubernetes.io/enable-access-log: "true"
-    #nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-    #nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/enable-access-log: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+    nginx.ingress.kubernetes.io/upstream-vhost: players-v1-service.default.svc.cluster.local 
+    traffic.sidecar.istio.io/excludeInboundPorts: 80,443
+    traffic.sidecar.istio.io/includeInboundPorts: ""     
 spec:
   ingressClassName: nginx
   rules:
@@ -20,11 +24,32 @@ spec:
           service:
             name: players-v1-service 
             port:
-              number: 8080   # Puerto del servicio al que se dirigirán las solicitudes
+              number: 80   # Puerto del servicio al que se dirigirán las solicitudes
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-reverse-proxy-2
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/enable-access-log: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    traffic.sidecar.istio.io/excludeInboundPorts: 80,443
+    traffic.sidecar.istio.io/includeInboundPorts: ""    
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+    nginx.ingress.kubernetes.io/upstream-vhost: players-v2-service.default.svc.cluster.local      
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.players.com  
+    http:
+      paths:
       - path: /v2(/|$)(.*)
         pathType: Prefix   # TODO check si ImplementationSpecific 
         backend:
           service:
             name: players-v2-service 
             port:
-              number: 8080   # Puerto del servicio al que se dirigirán las solicitudes
+              number: 80   # Puerto del servicio al que se dirigirán las solicitudes              
