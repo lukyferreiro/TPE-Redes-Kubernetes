@@ -4,11 +4,11 @@ metadata:
   name: players-v1-deployment
   labels:
     app: players-v1
-  annotations:
-    traffic.sidecar.istio.io/includeInboundPorts: ""
-    traffic.sidecar.istio.io/excludeInboundPorts: "80,443"
-    traffic.sidecar.istio.io/excludeOutboundIPRanges: ""
-    sidecar.istio.io/inject: 'true'
+  #annotations:
+    #traffic.sidecar.istio.io/includeInboundPorts: ""
+    #traffic.sidecar.istio.io/excludeInboundPorts: "80,443"
+    #traffic.sidecar.istio.io/excludeOutboundIPRanges: ""
+    #sidecar.istio.io/inject: 'true'
 spec:
   replicas: 3
   selector:
