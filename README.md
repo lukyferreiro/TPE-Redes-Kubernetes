@@ -442,7 +442,7 @@ players-v2-service   ClusterIP   10.96.41.4      <none>        8080/TCP   67s   
 
 Por último, levantaremos el [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/), el cual actuará como punto de acceso externo al clúster de Kubernetes, permitiendo el acceso desde afuera del cluster.
 
-Para poder configurar un Ingress, se configurará el [Ingress Controller de Nginx](https://github.com/kubernetes/ingress-nginx), que otorga ciertas funcionalidades como enrutamiento basado en hosts y rutas, load balancing, soporte para TLS/SSL, y redirecciones y reescrituras ([guía de instalación](https://kubernetes.github.io/ingress-nginx/deploy/))
+Para poder configurar un Ingress, se configurará el [Ingress Controller de Nginx](https://github.com/kubernetes/ingress-nginx), que otorga ciertas funcionalidades como enrutamiento basado en hosts y rutas, load balancing, soporte para TLS/SSL, y redirecciones y reescrituras. A continuacion se presentan los comandos basados en la [guía de instalación](https://kubernetes.github.io/ingress-nginx/deploy/) (tener en consideración lo encontrado en el siguiente post: [Using Istio with Nginx ingress](https://www.giffgaff.io/tech/using-istio-with-nginx-ingress)):
 
 
 ```bash
