@@ -193,7 +193,7 @@ cd ./TPE-Redes-Kubernetes
 
 A continuación, se presentaran todos los pasos para levantar un clúster de Kubernetes que cumpla con lo solicitado en la consigna. El objetivo es lograr la siguiente arquitectura:
 
-![Arquitectura del cluster de Kubernetes](...png "Arquitectura del cluster de Kubernetes")
+![Arquitectura del cluster de Kubernetes](./assets/architecture.jpg "Arquitectura del cluster de Kubernetes")
 
 ### 1. Levantar base de datos externa
 

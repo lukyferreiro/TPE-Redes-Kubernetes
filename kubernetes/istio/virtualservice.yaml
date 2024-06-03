@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   hosts:
-    - "*"
+    - "api.players.com"
   gateways:
     - istio-gateway
   http:
