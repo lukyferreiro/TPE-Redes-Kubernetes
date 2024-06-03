@@ -428,3 +428,5 @@ dist-ssr
 
 istio-1.18.0
 istio-1.22.0
+
+*.out

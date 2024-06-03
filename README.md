@@ -23,6 +23,7 @@
     - [6. Levantar los servicios de la API](#6-levantar-los-servicios-de-la-api)
     - [7. Levantar el Ingress Nginx](#7-levantar-el-ingress-nginx)
     - [8. Testeando el correcto funcionamiento](#8-testeando-el-correcto-funcionamiento)
+    - [9. Levantar el frontend](#9-levantar-el-frontend)
 
 ## Consigna
 
@@ -376,7 +377,7 @@ database-service     ClusterIP   None            <none>        <none>     2m25s 
 
 ### 6. Levantar los servicios de la API
 
-En primer lugar, se aplicará el *secret.yaml* para establecer variables de entorno para configurar los PODs del backend.
+En primer lugar, se aplicará el *secret.yaml* para establecer las variables de conexión a la BD externa:
 
 ```bash
 kubectl apply -f ./kubernetes/backend/players/secret.yaml
@@ -539,3 +540,54 @@ while sleep 1; do curl "api.players.com:5000/v1/players/1" && curl "api.players.
 ```
 
 ![Arquitectura en Kiali](./assets/kiali_architecture.png "Arquitectura en Kiali")
+
+### 9. Levantar el frontend
+
+Adicionalmente, se implementó un frontend para poder interactar con la API del cluster. En primer lugar, se debera instalar node y npm: 
+
+```bash
+sudo apt update
+sudo apt upgrade
+```
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+```
+
+```bash
+nvm install node
+```
+
+Verificamos la correcta instalación con:
+
+```bash
+node -v
+npm -v
+```
+
+Finalmente, para poder levantar el frontend, se deberá ejecutar:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+`Aclaración: Como estamos trabajando en entorno de WSL2 en Windows, tambien tenemos que abrir la terminal de administrador de Windows y ejecutar:`
+
+```bash
+C:\Windows\System32\drivers\etc\hosts
+```
+
+```bash
+# Añadir esta linea en el archivo /etc/hosts de Windows
+127.0.0.1 api.players.com
+```
+
+Ver si hace falta esto
+Usa socat para redirigir el puerto 5000 de WSL2 a localhost en Windows:
+
+```bash
+sudo apt-get install socat
+nohup socat TCP-LISTEN:5000,fork TCP:localhost:5000 &
+```
