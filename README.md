@@ -573,6 +573,8 @@ npm install
 npm run dev
 ```
 
+![Frontend](./assets/frontend.png "Frontend")
+
 `Aclaración: Como estamos trabajando en entorno de WSL2 en Windows, tambien tenemos que abrir la terminal de administrador de Windows y ejecutar:`
 
 ```bash
@@ -584,7 +586,6 @@ C:\Windows\System32\drivers\etc\hosts
 127.0.0.1 api.players.com
 ```
 
-Ver si hace falta esto
 Usa socat para redirigir el puerto 5000 de WSL2 a localhost en Windows:
 
 ```bash
