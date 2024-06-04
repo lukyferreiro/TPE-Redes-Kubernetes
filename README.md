@@ -40,6 +40,8 @@ un proxy reverso a la API.
 
 Todos los siguientes comandos de instalación y ejecución fueron testados en un subsistema de Windows para Linux x86_64 (WSL2), con una distribucion Debian GNU/Linux 10.
 
+`Aclaración: se deberá tener abierto Docker Desktop en todo momento.`
+
 ## Introducción
 
 Kubernetes es una plataforma de orquestación de contenedores de código abierto que automatiza la implementación, el escalado y la operación de aplicaciones en contenedores.
@@ -180,9 +182,7 @@ sudo mv ./kind /usr/local/bin/kind
 <a id="guia-de-uso-del-tpe"></a>
 ## Guía de Uso del TPE
 
-`Aclaración: se deberá tener abierto Docker Desktop en todo momento.`
-
-Como primer paso, se deberá clonar el [repositorio](https://github.com/lukyferreiro/TPE-Redes-Kubernetes) y posicionarse en la carpeta correspondiente
+Como primer paso, se deberá clonar el [repositorio](https://github.com/lukyferreiro/TPE-Redes-Kubernetes) y posicionarse en la carpeta correspondiente:
 
 ```bash
 git clone https://github.com/lukyferreiro/TPE-Redes-Kubernetes
@@ -510,13 +510,13 @@ Para finalizar y verificar el correcto funcionamiento, se podrán realizar llama
 
 ```bash
 curl -i "api.players.com:5000/v1/"
-curl -i "api.players.com:5000/v1/players?name=a&size=5"
-curl -i "api.players.com:5000/v2/players/1"
+curl -i "api.players.com:5000/v1/players?name=messi&size=5"
+curl -i "api.players.com:5000/v1/players/1"
 ```
 
 ```bash
 curl -i "api.players.com:5000/v2/"
-curl -i "api.players.com:5000/v2/players?name=a&size=5"
+curl -i "api.players.com:5000/v2/players?name=ronaldo&size=5"
 curl -i "api.players.com:5000/v2/players/1"
 ```
 
@@ -543,7 +543,7 @@ while sleep 1; do curl "api.players.com:5000/v1/players/1" && curl "api.players.
 
 ### 9. Levantar el frontend
 
-Adicionalmente, se implementó un frontend para poder interactar con la API del cluster. En primer lugar, se debera instalar node y npm: 
+Adicionalmente, se implementó un frontend para poder interactuar con la API del cluster. En primer lugar, se debera instalar node y npm: 
 
 ```bash
 sudo apt update
@@ -552,6 +552,10 @@ sudo apt upgrade
 
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+```
+
+```bash
+source ~/.bashrc
 ```
 
 ```bash
@@ -575,7 +579,7 @@ npm run dev
 
 ![Frontend](./assets/frontend.png "Frontend")
 
-`Aclaración: Como estamos trabajando en entorno de WSL2 en Windows, tambien tenemos que abrir la terminal de administrador de Windows y ejecutar:`
+`Aclaración: Como estamos trabajando en entorno de WSL2 en Windows, tambien tenemos que abrir la terminal de administrador de Windows (Windows Powershell administrador) y ejecutar:`
 
 ```bash
 C:\Windows\System32\drivers\etc\hosts
@@ -584,11 +588,4 @@ C:\Windows\System32\drivers\etc\hosts
 ```bash
 # Añadir esta linea en el archivo /etc/hosts de Windows
 127.0.0.1 api.players.com
-```
-
-Usa socat para redirigir el puerto 5000 de WSL2 a localhost en Windows:
-
-```bash
-sudo apt-get install socat
-nohup socat TCP-LISTEN:5000,fork TCP:localhost:5000 &
 ```
