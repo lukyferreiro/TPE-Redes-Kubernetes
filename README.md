@@ -577,9 +577,7 @@ npm install
 npm run dev
 ```
 
-![Frontend](./assets/frontend.png "Frontend")
-
-`Aclaración: Como estamos trabajando en entorno de WSL2 en Windows, tambien tenemos que abrir la terminal de administrador de Windows (Windows Powershell administrador) y ejecutar:`
+`Aclaración:` Como estamos trabajando en entorno de WSL2 en Windows, tambien tenemos que ser capaces de resolver el nombre api.players.com. Por lo tanto, abrimos Windows Powershell como administrador y ejecutamos:
 
 ```bash
 C:\Windows\System32\drivers\etc\hosts
@@ -589,3 +587,5 @@ C:\Windows\System32\drivers\etc\hosts
 # Añadir esta linea en el archivo /etc/hosts de Windows
 127.0.0.1 api.players.com
 ```
+
+![Frontend](./assets/frontend.png "Frontend")
