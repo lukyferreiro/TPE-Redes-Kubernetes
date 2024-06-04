@@ -4,9 +4,9 @@ import {Home} from "@components/home/Home";
 
 const App = () => {
     return (
-    <DefaultLayout>
-        <Home/>
-    </DefaultLayout>
+        <DefaultLayout>
+            <Home/>
+        </DefaultLayout>
     );
 };
 

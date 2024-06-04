@@ -20,7 +20,8 @@ export const playersApi = {
                 podNamespace: response.headers['x-pod-namespace'],
                 podUid: response.headers['x-pod-uid'],
                 podServiceAccount: response.headers['x-pod-service-account'],
-            }, players: response.data,
+            }, 
+            players: response.data,
         }
     },
 };
