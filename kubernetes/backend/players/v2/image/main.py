@@ -73,11 +73,10 @@ def get_api_specification():
     specs = {
         "players_url": "http://api.players.com/v2/players?name={name}{&size}",
         "player_url": "http://api.players.com/v2/players/{id}",
-        "db_url": f"postgresql://{database_user}:{database_password}@{database_host}/{database_db}"
+        #"db_url": f"postgresql://{database_user}:{database_password}@{database_host}/{database_db}"
     }
 
     response = make_response(specs, 200)
-
     response.headers.extend(_get_response_headers())
 
     return response
