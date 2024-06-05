@@ -435,15 +435,21 @@ kubectl get services -o wide
 ```bash
 #Se deberia obtener una salida similar a esta:
 NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE     SELECTOR
-players-v1-service   ClusterIP   10.96.102.200   <none>        8080/TCP   72s     app=players-v1
-players-v2-service   ClusterIP   10.96.41.4      <none>        8080/TCP   67s     app=players-v2
+players-v1-service   ClusterIP   10.96.102.200   <none>        9090/TCP   72s     app=players-v1
+players-v2-service   ClusterIP   10.96.41.4      <none>        9090/TCP   67s     app=players-v2
 ```
 
 ### 7. Levantar el Ingress Nginx
 
 Por último, levantaremos el [Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/), el cual actuará como punto de acceso externo al clúster de Kubernetes, permitiendo el acceso desde afuera del cluster.
 
-Para poder configurar un Ingress, se configurará el [Ingress Controller de Nginx](https://github.com/kubernetes/ingress-nginx), que otorga ciertas funcionalidades como enrutamiento basado en hosts y rutas, load balancing, soporte para TLS/SSL, y redirecciones y reescrituras. A continuacion se presentan los comandos basados en la [guía de instalación](https://kubernetes.github.io/ingress-nginx/deploy/) (tener en consideración lo encontrado en el siguiente post: [Using Istio with Nginx ingress](https://www.giffgaff.io/tech/using-istio-with-nginx-ingress)):
+Para poder configurar un Ingress, se configurará el [Ingress Controller de Nginx](https://github.com/kubernetes/ingress-nginx), que otorga ciertas funcionalidades como enrutamiento basado en hosts y rutas, load balancing, soporte para TLS/SSL, y redirecciones y reescrituras.
+
+En general, este Ingress Controller de Nginx necesita:
+ - Puerto 8443 abierto entre todos los hosts en los que se ejecutan los nodos de Kubernetes (usado para el controlador de admisión ingress-nginx).
+ - Puerto 80 (para HTTP) y/o 443 (para HTTPS) abiertos al público en los nodos de Kubernetes a los que apunta el DNS de tus aplicaciones.
+
+ A continuacion se presentan los comandos basados en la [guía de instalación](https://kubernetes.github.io/ingress-nginx/deploy/) (tener en consideración lo encontrado en el siguiente post: [Using Istio with Nginx ingress](https://www.giffgaff.io/tech/using-istio-with-nginx-ingress)):
 
 
 ```bash
@@ -454,21 +460,19 @@ kubectl apply -f ./kubernetes/ingress-nginx/controller-nginx-ingress.1.10.1.yaml
 kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s && kubectl apply -f ./kubernetes/ingress-nginx/ingress.yaml
 ```
 
-Podemos verificar que el ingress-controller esté ejecutando correctamente mediante el comando:
+Podemos verificar los componentes que se crearon ejecutando
 
 ```bash
-kubectl get pods --namespace=ingress-nginx
+kubectl get pods -o wide --namespace=ingress-nginx
 ```
 
 ```bash
 #Se deberia obtener una salida similar a esta:
-NAME                                        NAME                                        READY   STATUS      RESTARTS   AGE
-ingress-nginx-admission-create-4f7j7        0/1     Completed   0          3m18s
-ingress-nginx-admission-patch-nq5c4         0/1     Completed   0          3m18s
-ingress-nginx-controller-6948cd7b94-m8fkl   1/1     Running     0          3m18s
+NAME                                        READY   STATUS     RESTARTS   AGE   IP            NODE
+ingress-nginx-admission-create-zjw9t        1/2     NotReady   1          74s   10.244.2.9    redes-cluster-worker
+ingress-nginx-admission-patch-g29g4         1/2     NotReady   1          74s   10.244.2.10   redes-cluster-worker
+ingress-nginx-controller-6948cd7b94-pjg9w   2/2     Running    0          74s   10.244.2.11   redes-cluster-worker
 ```
-
-También podemos obtener información del servicio:
 
 ```bash
 kubectl get service --namespace=ingress-nginx
@@ -481,9 +485,16 @@ ingress-nginx-controller             LoadBalancer   10.96.164.216   <pending>   
 ingress-nginx-controller-admission   ClusterIP      10.96.152.93    <none>        443/TCP                      58s
 ```
 
-<!-- En general, el ingress-nginx necesita:
- - Puerto 8443 abierto entre todos los hosts en los que se ejecutan los nodos de Kubernetes (usado para el controlador de admisión ingress-nginx).
- - Puerto 80 (para HTTP) y/o 443 (para HTTPS) abiertos al público en los nodos de Kubernetes a los que apunta el DNS de tus aplicaciones. -->
+```bash
+kubectl get ingress  -o wide
+```
+
+```bash
+#Se deberia obtener una salida similar a esta:
+NAME                    CLASS   HOSTS             ADDRESS   PORTS   AGE
+nginx-reverse-proxy-1   nginx   api.players.com             80      4m50s
+nginx-reverse-proxy-2   nginx   api.players.com             80      4m50s
+```
 
 Por último se realizará un port forwarding del servicio del ingress-controller a un puerto generico (en este caso utilizaremos el puerto 5000):
 

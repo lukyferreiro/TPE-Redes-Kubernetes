@@ -24,7 +24,7 @@ spec:
           service:
             name: players-v1-service 
             port:
-              number: 80   # Puerto del servicio al que se dirigirán las solicitudes
+              number: 9090   # Puerto del servicio al que se dirigirán las solicitudes
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -52,4 +52,4 @@ spec:
           service:
             name: players-v2-service 
             port:
-              number: 80   # Puerto del servicio al que se dirigirán las solicitudes              
+              number: 9090   # Puerto del servicio al que se dirigirán las solicitudes              

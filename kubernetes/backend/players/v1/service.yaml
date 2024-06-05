@@ -9,7 +9,7 @@ spec:
   selector:
     app: players-v1
   ports:
-    - port: 80    # Puerto en el que el servicio estará escuchando
+    - port: 9090    # Puerto en el que el servicio estará escuchando
       targetPort: 8080     # Puerto al que se dirigirá el tráfico una vez que llegue al servicio (es decir puerto en los Pods asociados)
       name: http
       protocol: TCP
